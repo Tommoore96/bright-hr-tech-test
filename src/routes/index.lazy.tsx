@@ -1,9 +1,14 @@
+import { createLazyFileRoute } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AbsencesTable } from './absences-table'
+import { AbsencesTable } from 'components/absences-table'
 
 const queryClient = new QueryClient()
 
-function App() {
+export const Route = createLazyFileRoute('/')({
+  component: Index
+})
+
+function Index() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="bg-default">
@@ -15,5 +20,3 @@ function App() {
     </QueryClientProvider>
   )
 }
-
-export default App

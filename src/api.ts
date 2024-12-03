@@ -6,7 +6,7 @@ export function getAbsences(): Promise<AbsenceRecords> {
   )
 }
 
-export function getConflicts(id: number) {
+export function getConflicts(id: number): Promise<{ conflicts: boolean }> {
   return fetch(
     `https://front-end-kata.brighthr.workers.dev/api/conflict/${id}`
   ).then((res) => res.json())

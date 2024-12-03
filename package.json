@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-router": "^1.85.4",
     "ag-grid-react": "^32.3.3",
     "clsx": "^2.1.1",
     "react": "^18.3.1",
@@ -31,6 +32,8 @@
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
+    "@tanstack/router-devtools": "^1.85.4",
+    "@tanstack/router-plugin": "^1.85.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
     "@types/node": "^20.17.6",
@@ -40,7 +43,9 @@
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react-swc": "^3.7.1",
     "@vitest/ui": "^1.6.0",
+    "add": "^2.0.6",
     "autoprefixer": "^10.4.20",
+    "bun": "^1.1.38",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
