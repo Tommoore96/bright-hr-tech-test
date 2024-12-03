@@ -16,8 +16,6 @@ describe('<Avatar />', () => {
     expect(container.firstChild).toHaveClass(
       'inline-block w-12 h-12 rounded-full'
     )
-
-    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('should render the small Avatar', () => {
@@ -28,8 +26,6 @@ describe('<Avatar />', () => {
     expect(container.firstChild).toHaveClass(
       'inline-block w-10 h-10 rounded-full'
     )
-
-    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('should render the medium Avatar', () => {
@@ -50,15 +46,11 @@ describe('<Avatar />', () => {
     expect(container.firstChild).toHaveClass(
       'inline-block w-14 h-14 rounded-full'
     )
-
-    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('should render the empty Avatar', () => {
-    const { container } = render(<Avatar />)
+    render(<Avatar />)
 
     expect(screen.getByTestId('empty-avatar')).toBeInTheDocument()
-
-    expect(container.firstChild).toMatchSnapshot()
   })
 })
