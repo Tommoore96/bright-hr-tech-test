@@ -6,6 +6,7 @@ import {
   TableColumn,
   TableData
 } from 'components/absences-table'
+import { AbsenceType } from 'types'
 
 const absenceTypeMap = {
   SICKNESS: 'Sickness',
@@ -13,7 +14,7 @@ const absenceTypeMap = {
   MEDICAL: 'Medical'
 }
 
-enum TableColumnField {
+enum TableColumnFields {
   name = 'name',
   type = 'type',
   approved = 'approved',
@@ -21,14 +22,16 @@ enum TableColumnField {
   endDate = 'endDate'
 }
 
-const TABLE_COLUMNS: Array<
-  TableColumn<'name' | 'type' | 'approved' | 'startDate' | 'endDate'>
-> = [
-  { headerName: 'Name', field: 'name' },
-  { headerName: 'Type', field: 'type' },
-  { headerName: 'Approved', field: 'approved' },
-  { headerName: 'Start Date', field: 'startDate' },
-  { headerName: 'End Date', field: 'endDate' }
+const TABLE_COLUMNS: Array<TableColumn<TableColumnFields>> = [
+  { headerName: 'Name', field: TableColumnFields.name, sortable: true },
+  { headerName: 'Type', field: TableColumnFields.type, sortable: true },
+  { headerName: 'Approved', field: TableColumnFields.approved },
+  {
+    headerName: 'Start Date',
+    field: TableColumnFields.startDate,
+    sortable: true
+  },
+  { headerName: 'End Date', field: TableColumnFields.endDate, sortable: true }
 ]
 
 export const Route = createLazyFileRoute('/')({
@@ -59,53 +62,59 @@ function Index() {
   }
 
   const tableData: TableData<(typeof TABLE_COLUMNS)[number]['field']> =
-    absenceQuery.data.map((absence) => {
+    // React query returns data in order requested, so I can safely use the index to get the conflicts
+    absenceQuery.data.map((absence, index) => {
       const startDate = new Date(absence.startDate)
       const endDate = new Date(startDate)
       endDate.setDate(startDate.getDate() + absence.days)
 
+      /**
+       * Doing this again I would turn the data into an object to ensure better type safety
+       */
       return {
         id: absence.id,
         data: [
           {
-            column: 'name',
-            element: `${absence.employee.firstName} ${absence.employee.lastName}`,
-            value: `${absence.employee.firstName} ${absence.employee.lastName}`,
-            sortable: true
+            column: TableColumnFields.name,
+            element: (
+              <>
+                {absence.employee.firstName} {absence.employee.lastName}{' '}
+                {conflicts[index].data?.conflicts ? (
+                  <span aria-label="Conflict" title="Conflict">
+                    ⚠️
+                  </span>
+                ) : null}
+              </>
+            ),
+            value: `${absence.employee.firstName} ${absence.employee.lastName}`
           },
           {
-            column: 'type',
+            column: TableColumnFields.type,
             element: (
               <>
                 {getAbsenceEmoji(absence.absenceType)}
                 {absenceTypeMap[absence.absenceType]}
               </>
             ),
-            value: absence.absenceType,
-            sortable: true
+            value: absence.absenceType
           },
           {
-            column: 'approved',
+            column: TableColumnFields.approved,
             element: absence.approved ? 'Yes' : 'No',
             value: absence.approved
           },
           {
-            column: 'startDate',
+            column: TableColumnFields.startDate,
             type: 'date',
             element: startDate.toLocaleDateString('en-GB'),
             value: startDate
           },
           {
-            column: 'endDate',
+            column: TableColumnFields.endDate,
             type: 'date',
             element: endDate.toLocaleDateString('en-GB'),
             value: endDate
           }
-          // {
-          //   column: 'startDate',
-          //   element: conflicts[index].data?.conflicts,
-          //   value: conflicts[index].data?.conflicts
-          // }
         ]
       }
     })
@@ -113,7 +122,10 @@ function Index() {
   return (
     <div className="flex flex-1 flex-col justify-center gap-4 overflow-hidden px-3 pb-12 pt-6 align-middle sm:px-7 md:gap-8 md:px-12 md:pt-8 lg:mx-auto lg:max-w-4xl">
       <h1 className="text-4xl font-bold">Absences</h1>
-      <AbsencesTable tableColumns={TABLE_COLUMNS} tableData={tableData} />
+      <AbsencesTable<TableColumnFields>
+        tableColumns={TABLE_COLUMNS}
+        tableData={tableData}
+      />
     </div>
   )
 }

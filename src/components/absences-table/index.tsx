@@ -1,12 +1,5 @@
-import { useQueries, useQuery } from '@tanstack/react-query'
-import { getAbsences, getConflicts } from 'api'
 import { useState } from 'react'
-import { AbsenceType } from 'types'
 import { cn } from 'utils'
-
-const sortKeys = ['name', 'type', 'startDate', 'endDate'] as const
-
-type SortKey = (typeof sortKeys)[number]
 
 export type TableData<T extends string> = {
   id: string | number
@@ -18,107 +11,31 @@ export type TableData<T extends string> = {
   }[]
 }[]
 
-export type TableColumn = { headerName: string; field: string }
-
-const absenceTypeMap = {
-  SICKNESS: 'Sickness',
-  ANNUAL_LEAVE: 'Annual Leave',
-  MEDICAL: 'Medical'
+export type TableColumn<T extends string> = {
+  headerName: string
+  field: T
+  sortable?: boolean
 }
 
-export function AbsencesTable({
+export const AbsencesTable = <T extends string>({
   className,
   tableData,
   tableColumns
 }: {
   className?: string
-  tableData: TableData
-  tableColumns: typeof TABLE_COLUMNS
-}) {
+  tableData: TableData<T>
+  tableColumns: TableColumn<T>[]
+}) => {
   const [sortConfig, setSortConfig] = useState<{
-    key: SortKey
+    key: T
     direction: 'asc' | 'desc'
   } | null>(null)
-
-  const absenceQuery = useQuery({
-    queryKey: ['absences'],
-    queryFn: getAbsences
-  })
-
-  const conflicts = useQueries({
-    queries: absenceQuery.data
-      ? absenceQuery.data.map((absence) => ({
-          queryKey: ['conflicts', absence.id],
-          queryFn: () => getConflicts(absence.id)
-        }))
-      : []
-  })
-
-  if (absenceQuery.isError || absenceQuery.data === undefined) {
-    return <div>Error fetching data</div>
-  }
-
-  if (absenceQuery.isLoading) {
-    return <div>Loading...</div>
-  }
-
-  const tableData: TableData<(typeof TABLE_COLUMNS)[number]['field']> =
-    absenceQuery.data.map((absence) => {
-      const startDate = new Date(absence.startDate)
-      const endDate = new Date(startDate)
-      endDate.setDate(startDate.getDate() + absence.days)
-
-      return {
-        id: absence.id,
-        data: [
-          {
-            column: 'name',
-            element: `${absence.employee.firstName} ${absence.employee.lastName}`,
-            value: `${absence.employee.firstName} ${absence.employee.lastName}`,
-            sortable: true
-          },
-          {
-            column: 'type',
-            element: (
-              <>
-                {getAbsenceEmoji(absence.absenceType)}
-                {absenceTypeMap[absence.absenceType]}
-              </>
-            ),
-            value: absence.absenceType,
-            sortable: true
-          },
-          {
-            column: 'approved',
-            element: absence.approved ? 'Yes' : 'No',
-            value: absence.approved
-          },
-          {
-            column: 'startDate',
-            type: 'date',
-            element: startDate.toLocaleDateString('en-GB'),
-            value: startDate
-          },
-          {
-            column: 'endDate',
-            type: 'date',
-            element: endDate.toLocaleDateString('en-GB'),
-            value: endDate
-          }
-          // {
-          //   column: 'startDate',
-          //   element: conflicts[index].data?.conflicts,
-          //   value: conflicts[index].data?.conflicts
-          // }
-        ]
-      }
-    })
 
   const sortedData = [...tableData].flat().sort((a, b) => {
     if (sortConfig === null) return 0
 
-    const aValue = a.data.find((d) => d.column === sortConfig.key).value
-    const bValue = b.data.find((d) => d.column === sortConfig.key).value
+    const aValue = a.data.find((d) => d.column === sortConfig.key)?.value
+    const bValue = b.data.find((d) => d.column === sortConfig.key)?.value
 
     if (aValue === undefined || bValue === undefined) return 0
 
@@ -141,7 +58,7 @@ export function AbsencesTable({
     return 0
   })
 
-  const requestSort = (key: SortKey) => {
+  const requestSort = (key: T) => {
     let direction: 'asc' | 'desc' = 'asc'
     if (
       sortConfig &&
@@ -158,8 +75,8 @@ export function AbsencesTable({
       <table className="w-full border-collapse border-2 border-slate-100 bg-white text-left">
         <thead className="bg-slate-100 text-gray-700">
           <tr>
-            {TABLE_COLUMNS.map((column) => {
-              const isSortable = checkIsSortable(column.field)
+            {tableColumns.map((column) => {
+              const isSortable = !!column.sortable
               return (
                 <th
                   key={column.field}
@@ -167,7 +84,7 @@ export function AbsencesTable({
                     'cursor-pointer': isSortable
                   })}
                   {...(isSortable
-                    ? { onClick: () => requestSort(column.field as SortKey) }
+                    ? { onClick: () => requestSort(column.field) }
                     : null)}
                 >
                   {column.headerName}
@@ -190,7 +107,21 @@ export function AbsencesTable({
           </tr>
         </thead>
         <tbody className="text-sm">
-          {sortedData.map((absence) => (
+          {sortedData.map((row) => (
+            <tr key={row.id} className="border-b">
+              {row.data.map((cell, index) => (
+                <td
+                  key={cell.column}
+                  className={cn('px-4 py-3 md:px-6 md:py-4', {
+                    'whitespace-nowrap font-medium text-gray-900': index === 0
+                  })}
+                >
+                  {cell.element}
+                </td>
+              ))}
+            </tr>
+          ))}
+          {/* {sortedData.map((absence) => (
             <tr
               key={absence.id}
               className={cn('border-b', { 'bg-gray-300': absence.conflicts })}
@@ -211,38 +142,9 @@ export function AbsencesTable({
                 {absence.days}
               </td>
             </tr>
-          ))}
+          ))} */}
         </tbody>
       </table>
     </div>
   )
-}
-
-function getAbsenceEmoji(type: AbsenceType) {
-  switch (type) {
-    case 'SICKNESS':
-      return (
-        <span role="img" aria-label="ill person" className="mr-2">
-          🤒
-        </span>
-      )
-    case 'ANNUAL_LEAVE':
-      return (
-        <span role="img" aria-label="beach" className="mr-2">
-          🏖️
-        </span>
-      )
-    case 'MEDICAL':
-      return (
-        <span role="img" aria-label="hospital" className="mr-2">
-          🏥
-        </span>
-      )
-    default:
-      return ''
-  }
-}
-
-function checkIsSortable(key: string): key is SortKey {
-  return sortKeys.includes(key as SortKey)
 }
