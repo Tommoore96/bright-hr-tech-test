@@ -1,13 +1,35 @@
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { getAbsences, getConflicts } from 'api'
-import { AbsencesTable } from 'components/absences-table'
+import {
+  AbsencesTable,
+  TableColumn,
+  TableData
+} from 'components/absences-table'
 
 const absenceTypeMap = {
   SICKNESS: 'Sickness',
   ANNUAL_LEAVE: 'Annual Leave',
   MEDICAL: 'Medical'
 }
+
+enum TableColumnField {
+  name = 'name',
+  type = 'type',
+  approved = 'approved',
+  startDate = 'startDate',
+  endDate = 'endDate'
+}
+
+const TABLE_COLUMNS: Array<
+  TableColumn<'name' | 'type' | 'approved' | 'startDate' | 'endDate'>
+> = [
+  { headerName: 'Name', field: 'name' },
+  { headerName: 'Type', field: 'type' },
+  { headerName: 'Approved', field: 'approved' },
+  { headerName: 'Start Date', field: 'startDate' },
+  { headerName: 'End Date', field: 'endDate' }
+]
 
 export const Route = createLazyFileRoute('/')({
   component: Index
@@ -91,7 +113,7 @@ function Index() {
   return (
     <div className="flex flex-1 flex-col justify-center gap-4 overflow-hidden px-3 pb-12 pt-6 align-middle sm:px-7 md:gap-8 md:px-12 md:pt-8 lg:mx-auto lg:max-w-4xl">
       <h1 className="text-4xl font-bold">Absences</h1>
-      <AbsencesTable />
+      <AbsencesTable tableColumns={TABLE_COLUMNS} tableData={tableData} />
     </div>
   )
 }

@@ -4,33 +4,115 @@ import { useState } from 'react'
 import { AbsenceType } from 'types'
 import { cn } from 'utils'
 
-interface Column<T> {
-  headerName: string
-  field: keyof T
-  sortable?: boolean
+const sortKeys = ['name', 'type', 'startDate', 'endDate'] as const
+
+type SortKey = (typeof sortKeys)[number]
+
+export type TableData<T extends string> = {
+  id: string | number
+  data: {
+    column: T
+    element: React.ReactNode
+    value: string | number | Date | boolean | null
+    sortable?: boolean
+  }[]
+}[]
+
+export type TableColumn = { headerName: string; field: string }
+
+const absenceTypeMap = {
+  SICKNESS: 'Sickness',
+  ANNUAL_LEAVE: 'Annual Leave',
+  MEDICAL: 'Medical'
 }
 
-interface TableProps<T> {
-  columns: Column<T>[]
-  data: T[]
+export function AbsencesTable({
+  className,
+  tableData,
+  tableColumns
+}: {
   className?: string
-}
+  tableData: TableData
+  tableColumns: typeof TABLE_COLUMNS
+}) {
+  const [sortConfig, setSortConfig] = useState<{
+    key: SortKey
+    direction: 'asc' | 'desc'
+  } | null>(null)
 
-interface SortConfig<T> {
-  key: keyof T
-  direction: 'ascending' | 'descending'
-}
+  const absenceQuery = useQuery({
+    queryKey: ['absences'],
+    queryFn: getAbsences
+  })
 
-const TABLE_COLUMNS = [
-  { headerName: 'Name', field: 'name' },
-  { headerName: 'Type', field: 'type' },
-  { headerName: 'Approved', field: 'approved' },
-  { headerName: 'Start Date', field: 'startDate' },
-  { headerName: 'End Date', field: 'endDate' }
-] as const
+  const conflicts = useQueries({
+    queries: absenceQuery.data
+      ? absenceQuery.data.map((absence) => ({
+          queryKey: ['conflicts', absence.id],
+          queryFn: () => getConflicts(absence.id)
+        }))
+      : []
+  })
 
-const Table = <T,>({ columns, data, className }: TableProps<T>) => {
-  const [sortConfig, setSortConfig] = useState<SortConfig<T> | null>(null)
+  if (absenceQuery.isError || absenceQuery.data === undefined) {
+    return <div>Error fetching data</div>
+  }
+
+  if (absenceQuery.isLoading) {
+    return <div>Loading...</div>
+  }
+
+  const tableData: TableData<(typeof TABLE_COLUMNS)[number]['field']> =
+    absenceQuery.data.map((absence) => {
+      const startDate = new Date(absence.startDate)
+      const endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + absence.days)
+
+      return {
+        id: absence.id,
+        data: [
+          {
+            column: 'name',
+            element: `${absence.employee.firstName} ${absence.employee.lastName}`,
+            value: `${absence.employee.firstName} ${absence.employee.lastName}`,
+            sortable: true
+          },
+          {
+            column: 'type',
+            element: (
+              <>
+                {getAbsenceEmoji(absence.absenceType)}
+                {absenceTypeMap[absence.absenceType]}
+              </>
+            ),
+            value: absence.absenceType,
+            sortable: true
+          },
+          {
+            column: 'approved',
+            element: absence.approved ? 'Yes' : 'No',
+            value: absence.approved
+          },
+          {
+            column: 'startDate',
+            type: 'date',
+            element: startDate.toLocaleDateString('en-GB'),
+            value: startDate
+          },
+          {
+            column: 'endDate',
+            type: 'date',
+            element: endDate.toLocaleDateString('en-GB'),
+            value: endDate
+          }
+          // {
+          //   column: 'startDate',
+          //   element: conflicts[index].data?.conflicts,
+          //   value: conflicts[index].data?.conflicts
+          // }
+        ]
+      }
+    })
 
   const sortedData = [...tableData].flat().sort((a, b) => {
     if (sortConfig === null) return 0
@@ -136,6 +218,31 @@ const Table = <T,>({ columns, data, className }: TableProps<T>) => {
   )
 }
 
-// function checkIsSortable(key: string): key is SortKey {
-//   return sortKeys.includes(key as SortKey)
-// }
+function getAbsenceEmoji(type: AbsenceType) {
+  switch (type) {
+    case 'SICKNESS':
+      return (
+        <span role="img" aria-label="ill person" className="mr-2">
+          🤒
+        </span>
+      )
+    case 'ANNUAL_LEAVE':
+      return (
+        <span role="img" aria-label="beach" className="mr-2">
+          🏖️
+        </span>
+      )
+    case 'MEDICAL':
+      return (
+        <span role="img" aria-label="hospital" className="mr-2">
+          🏥
+        </span>
+      )
+    default:
+      return ''
+  }
+}
+
+function checkIsSortable(key: string): key is SortKey {
+  return sortKeys.includes(key as SortKey)
+}
