@@ -58,7 +58,12 @@ export function AbsencesTable({ className }: { className?: string }) {
     return {
       id: absence.id,
       name: `${absence.employee.firstName} ${absence.employee.lastName}`,
-      type: absence.absenceType,
+      type: (
+        <>
+          {getAbsenceEmoji(absence.absenceType)}
+          {absenceTypeMap[absence.absenceType]}
+        </>
+      ),
       approved: absence.approved,
       startDate: startDate.toLocaleDateString('en-GB'),
       days: endDate.toLocaleDateString('en-GB'),
@@ -137,8 +142,7 @@ export function AbsencesTable({ className }: { className?: string }) {
                 {absence.name}
               </th>
               <td className="px-4 py-3 font-light md:px-6 md:py-4">
-                {getAbsenceEmoji(absence.type)}
-                {absenceTypeMap[absence.type]}
+                {absence.type}
               </td>
               <td className="px-4 py-3 font-light md:px-6 md:py-4">
                 {absence.approved ? 'Yes' : 'No'}
