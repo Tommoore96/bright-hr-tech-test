@@ -4,16 +4,26 @@ import { useState } from 'react'
 import { AbsenceType } from 'types'
 import { cn } from 'utils'
 
-const sortKeys = ['name', 'type', 'startDate', 'days'] as const
+const sortKeys = ['name', 'type', 'startDate', 'endDate'] as const
 
 type SortKey = (typeof sortKeys)[number]
+
+type TableData<T extends string> = {
+  id: string | number
+  data: {
+    column: T
+    element: React.ReactNode
+    value: string | number | Date | boolean | null
+    sortable?: boolean
+  }[]
+}[]
 
 const TABLE_COLUMNS = [
   { headerName: 'Name', field: 'name' },
   { headerName: 'Type', field: 'type' },
   { headerName: 'Approved', field: 'approved' },
   { headerName: 'Start Date', field: 'startDate' },
-  { headerName: 'End Date', field: 'days' }
+  { headerName: 'End Date', field: 'endDate' }
 ] as const
 
 const absenceTypeMap = {
@@ -50,39 +60,84 @@ export function AbsencesTable({ className }: { className?: string }) {
     return <div>Loading...</div>
   }
 
-  const tableData = absenceQuery.data.map((absence, index) => {
-    const startDate = new Date(absence.startDate)
-    const endDate = new Date(startDate)
-    endDate.setDate(startDate.getDate() + absence.days)
+  const tableData: TableData<(typeof TABLE_COLUMNS)[number]['field']> =
+    absenceQuery.data.map((absence) => {
+      const startDate = new Date(absence.startDate)
+      const endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + absence.days)
 
-    return {
-      id: absence.id,
-      name: `${absence.employee.firstName} ${absence.employee.lastName}`,
-      type: (
-        <>
-          {getAbsenceEmoji(absence.absenceType)}
-          {absenceTypeMap[absence.absenceType]}
-        </>
-      ),
-      approved: absence.approved,
-      startDate: startDate.toLocaleDateString('en-GB'),
-      days: endDate.toLocaleDateString('en-GB'),
-      conflicts: conflicts[index].data?.conflicts
-    }
-  })
-
-  const sortedData = [...tableData]
-  if (sortConfig !== null) {
-    sortedData.sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1
+      return {
+        id: absence.id,
+        data: [
+          {
+            column: 'name',
+            element: `${absence.employee.firstName} ${absence.employee.lastName}`,
+            value: `${absence.employee.firstName} ${absence.employee.lastName}`,
+            sortable: true
+          },
+          {
+            column: 'type',
+            element: (
+              <>
+                {getAbsenceEmoji(absence.absenceType)}
+                {absenceTypeMap[absence.absenceType]}
+              </>
+            ),
+            value: absence.absenceType,
+            sortable: true
+          },
+          {
+            column: 'approved',
+            element: absence.approved ? 'Yes' : 'No',
+            value: absence.approved
+          },
+          {
+            column: 'startDate',
+            type: 'date',
+            element: startDate.toLocaleDateString('en-GB'),
+            value: startDate
+          },
+          {
+            column: 'endDate',
+            type: 'date',
+            element: endDate.toLocaleDateString('en-GB'),
+            value: endDate
+          }
+          // {
+          //   column: 'startDate',
+          //   element: conflicts[index].data?.conflicts,
+          //   value: conflicts[index].data?.conflicts
+          // }
+        ]
       }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1
-      }
-      return 0
     })
-  }
+
+  const sortedData = [...tableData].flat().sort((a, b) => {
+    if (sortConfig === null) return 0
+
+    const aValue = a.data.find((d) => d.column === sortConfig.key).value
+    const bValue = b.data.find((d) => d.column === sortConfig.key).value
+
+    if (aValue === undefined || bValue === undefined) return 0
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortConfig.direction === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue)
+    }
+
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue
+    }
+
+    if (aValue instanceof Date && bValue instanceof Date) {
+      return sortConfig.direction === 'asc'
+        ? aValue.getTime() - bValue.getTime()
+        : bValue.getTime() - aValue.getTime()
+    }
+
+    return 0
+  })
 
   const requestSort = (key: SortKey) => {
     let direction: 'asc' | 'desc' = 'asc'
