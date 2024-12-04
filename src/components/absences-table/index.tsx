@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cn } from 'utils'
+import { cn } from 'utils/cn'
 
 export type TableData<T extends string> = {
   id: string | number
@@ -108,7 +108,7 @@ export const AbsencesTable = <T extends string>({
         </thead>
         <tbody className="text-sm">
           {sortedData.map((row) => (
-            <tr key={row.id} className="border-b">
+            <tr key={row.id} className="border-b hover:bg-gray-50">
               {row.data.map((cell, index) => (
                 <td
                   key={cell.column}
@@ -121,28 +121,6 @@ export const AbsencesTable = <T extends string>({
               ))}
             </tr>
           ))}
-          {/* {sortedData.map((absence) => (
-            <tr
-              key={absence.id}
-              className={cn('border-b', { 'bg-gray-300': absence.conflicts })}
-            >
-              <th className="whitespace-nowrap px-4 py-3 font-medium text-gray-900 md:px-6 md:py-4">
-                {absence.name}
-              </th>
-              <td className="px-4 py-3 font-light md:px-6 md:py-4">
-                {absence.type}
-              </td>
-              <td className="px-4 py-3 font-light md:px-6 md:py-4">
-                {absence.approved ? 'Yes' : 'No'}
-              </td>
-              <td className="px-4 py-3 font-light md:px-6 md:py-4">
-                {absence.startDate}
-              </td>
-              <td className="px-4 py-3 font-light md:px-6 md:py-4">
-                {absence.days}
-              </td>
-            </tr>
-          ))} */}
         </tbody>
       </table>
     </div>

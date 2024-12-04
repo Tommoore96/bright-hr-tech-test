@@ -16,3 +16,5 @@ export type AbsenceRecord = {
 }
 
 export type AbsenceRecords = AbsenceRecord[]
+
+export type Conflict = { conflicts: boolean } | undefined

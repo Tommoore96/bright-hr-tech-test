@@ -1,13 +1,24 @@
-import { AbsenceRecords } from './types'
+import { AbsenceRecords, Conflict } from './types'
 
-export function getAbsences(): Promise<AbsenceRecords> {
-  return fetch('https://front-end-kata.brighthr.workers.dev/api/absences').then(
-    (res) => res.json()
+export async function getAbsences(): Promise<AbsenceRecords> {
+  // Search params don't work
+  const response = await fetch(
+    'https://front-end-kata.brighthr.workers.dev/api/absences'
   )
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  const data = await response.json()
+  return data
 }
 
-export function getConflicts(id: number): Promise<{ conflicts: boolean }> {
-  return fetch(
+export async function getConflicts(id: number): Promise<Conflict> {
+  const response = await fetch(
     `https://front-end-kata.brighthr.workers.dev/api/conflict/${id}`
-  ).then((res) => res.json())
+  )
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  const data = await response.json()
+  return data
 }
