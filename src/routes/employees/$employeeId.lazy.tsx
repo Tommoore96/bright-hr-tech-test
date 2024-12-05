@@ -4,7 +4,10 @@ import { getAbsences } from 'api'
 import { AbsencesTable } from 'components/absences-table'
 import Page from 'components/page'
 import PageTitle from 'components/page-title'
-import { absencesToTableData, TABLE_COLUMNS } from 'utils/absenceTable'
+import {
+  absencesToTableData,
+  TABLE_COLUMNS
+} from 'utils/absenceTable/absenceTableRows'
 
 // Use loaders?
 export const Route = createLazyFileRoute('/employees/$employeeId')({

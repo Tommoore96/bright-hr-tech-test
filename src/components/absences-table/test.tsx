@@ -1,56 +1,139 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, expect } from 'vitest'
+import { AbsencesTable, TableData, TableColumn } from './index'
 
-import Avatar from '.'
+type TestColumns = 'name' | 'date' | 'status'
 
-describe('<Avatar />', () => {
-  const props = {
-    src: 'https://gravatar.com/4405735f6f3129e0286d9d43e7b460d0',
-    alt: 'Avatar'
+const tableColumns: TableColumn<TestColumns>[] = [
+  { headerName: 'Name', field: 'name', sortable: true },
+  { headerName: 'Date', field: 'date', sortable: true },
+  { headerName: 'Status', field: 'status', sortable: false }
+]
+
+const tableData: TableData<TestColumns> = [
+  {
+    id: 1,
+    data: [
+      { column: 'name', element: 'Alice', value: 'Alice' },
+      {
+        column: 'date',
+        element: '2024-01-01',
+        value: new Date('2024-01-01')
+      },
+      { column: 'status', element: 'Present', value: 'Present' }
+    ]
+  },
+  {
+    id: 2,
+    data: [
+      { column: 'name', element: 'Bob', value: 'Bob' },
+      {
+        column: 'date',
+        element: '2024-01-02',
+        value: new Date('2024-01-02')
+      },
+      { column: 'status', element: 'Absent', value: 'Absent' }
+    ]
   }
+]
 
-  it('should render the medium Avatar as default', () => {
-    const { container } = render(<Avatar {...props} />)
+describe('AbsencesTable', () => {
+  test('renders correctly', () => {
+    render(<AbsencesTable tableData={tableData} tableColumns={tableColumns} />)
 
-    expect(screen.getByRole('img', { name: /Avatar/i })).toBeInTheDocument()
-
-    expect(container.firstChild).toHaveClass(
-      'inline-block w-12 h-12 rounded-full'
-    )
+    expect(screen.getByText('Name')).toBeInTheDocument()
+    expect(screen.getByText('Date')).toBeInTheDocument()
+    expect(screen.getByText('Status')).toBeInTheDocument()
+    expect(screen.getByText('Alice')).toBeInTheDocument()
+    expect(screen.getByText('Bob')).toBeInTheDocument()
   })
 
-  it('should render the small Avatar', () => {
-    const { container } = render(<Avatar size="small" {...props} />)
-
-    expect(screen.getByRole('img', { name: /Avatar/i })).toBeInTheDocument()
-
-    expect(container.firstChild).toHaveClass(
-      'inline-block w-10 h-10 rounded-full'
+  test('sorts data correctly when passed a default', () => {
+    const { unmount } = render(
+      <AbsencesTable
+        tableData={tableData}
+        tableColumns={tableColumns}
+        defaultSort={{ key: 'name', direction: 'asc' }}
+      />
     )
+
+    let rows = screen.getAllByRole('row')
+
+    expect(rows[1]).toHaveTextContent('Alice')
+    expect(rows[2]).toHaveTextContent('Bob')
+
+    unmount()
+
+    render(
+      <AbsencesTable
+        tableData={tableData}
+        tableColumns={tableColumns}
+        defaultSort={{ key: 'name', direction: 'desc' }}
+      />
+    )
+
+    rows = screen.getAllByRole('row')
+
+    expect(rows[1]).toHaveTextContent('Bob')
+    expect(rows[2]).toHaveTextContent('Alice')
   })
 
-  it('should render the medium Avatar', () => {
-    const { container } = render(<Avatar size="medium" {...props} />)
-
-    expect(screen.getByRole('img', { name: /Avatar/i })).toBeInTheDocument()
-
-    expect(container.firstChild).toHaveClass(
-      'inline-block w-12 h-12 rounded-full'
+  test('sorts data correctly when column header is clicked', () => {
+    render(
+      <AbsencesTable
+        tableData={tableData}
+        tableColumns={tableColumns}
+        defaultSort={{ key: 'name', direction: 'asc' }}
+      />
     )
+
+    let rows = screen.getAllByRole('row')
+
+    expect(rows[1]).toHaveTextContent('Alice')
+    expect(rows[2]).toHaveTextContent('Bob')
+
+    const nameHeader = screen.getByText('Name')
+
+    fireEvent.click(nameHeader)
+
+    rows = screen.getAllByRole('row')
+
+    expect(rows[1]).toHaveTextContent('Bob')
+    expect(rows[2]).toHaveTextContent('Alice')
   })
 
-  it('should render the large Avatar', () => {
-    const { container } = render(<Avatar size="large" {...props} />)
+  test('non sortable columns do not change table order when clicked', () => {
+    render(<AbsencesTable tableData={tableData} tableColumns={tableColumns} />)
 
-    expect(screen.getByRole('img', { name: /Avatar/i })).toBeInTheDocument()
+    const rows = screen.getAllByRole('row')
 
-    expect(container.firstChild).toHaveClass(
-      'inline-block w-14 h-14 rounded-full'
-    )
+    expect(rows[1]).toHaveTextContent('Alice')
+    expect(rows[2]).toHaveTextContent('Bob')
+
+    const statusHeader = screen.getByText('Status')
+
+    fireEvent.click(statusHeader)
+
+    expect(rows[1]).toHaveTextContent('Alice')
+    expect(rows[2]).toHaveTextContent('Bob')
   })
 
-  it('should render the empty Avatar', () => {
-    render(<Avatar />)
+  test('renders column headers correctly', () => {
+    render(<AbsencesTable tableData={tableData} tableColumns={tableColumns} />)
 
-    expect(screen.getByTestId('empty-avatar')).toBeInTheDocument()
+    tableColumns.forEach((column) => {
+      expect(screen.getByText(column.headerName)).toBeInTheDocument()
+    })
+  })
+
+  /**
+   * I wouldn't normally use snapshots but I can't find a way to find the elements correctly in vitest.
+   * I think this is a good method for this test in the meantime anyway.
+   */
+  test('renders table rows and cells correctly', () => {
+    const { asFragment } = render(
+      <AbsencesTable tableData={tableData} tableColumns={tableColumns} />
+    )
+    expect(asFragment).toMatchSnapshot()
   })
 })

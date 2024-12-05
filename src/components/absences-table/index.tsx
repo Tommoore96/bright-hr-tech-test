@@ -20,16 +20,18 @@ export type TableColumn<T extends string> = {
 export const AbsencesTable = <T extends string>({
   className,
   tableData,
-  tableColumns
+  tableColumns,
+  defaultSort
 }: {
   className?: string
   tableData: TableData<T>
   tableColumns: TableColumn<T>[]
+  defaultSort?: { key: T; direction: 'asc' | 'desc' }
 }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: T
     direction: 'asc' | 'desc'
-  } | null>(null)
+  } | null>(defaultSort || null)
 
   const sortedData = [...tableData].flat().sort((a, b) => {
     if (sortConfig === null) return 0

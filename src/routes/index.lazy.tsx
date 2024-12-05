@@ -8,7 +8,7 @@ import {
   absencesToTableData,
   TABLE_COLUMNS,
   TableColumnFields
-} from 'utils/absenceTable'
+} from 'utils/absenceTable/absenceTableRows'
 
 export const Route = createLazyFileRoute('/')({
   component: Index
@@ -67,6 +67,7 @@ function Index() {
             ? undefined
             : conflicts.map((conflict) => conflict.data)
         )}
+        defaultSort={{ key: TableColumnFields.name, direction: 'asc' }}
       />
     </Page>
   )

@@ -42,7 +42,7 @@ export function absencesToTableData(
     endDate.setDate(startDate.getDate() + absence.days)
 
     /**
-     * Doing this again I would turn the data array into an object to ensure better type safety
+     * Doing this again I would consider turning the data array into an object to ensure better type safety
      */
     return {
       id: absence.id,
