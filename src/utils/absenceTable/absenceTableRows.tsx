@@ -28,7 +28,7 @@ export const TABLE_COLUMNS: Array<TableColumn<TableColumnFields>> = [
   { headerName: 'End Date', field: TableColumnFields.endDate, sortable: true }
 ]
 
-export function absencesToTableData(
+export function absencesToTableRows(
   absences: AbsenceRecord[],
   conflicts?: Conflict[],
   /**

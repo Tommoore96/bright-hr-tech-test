@@ -5,7 +5,7 @@ import { AbsencesTable } from 'components/absences-table'
 import Page from 'components/page'
 import PageTitle from 'components/page-title'
 import {
-  absencesToTableData,
+  absencesToTableRows,
   TABLE_COLUMNS
 } from 'utils/absenceTable/absenceTableRows'
 
@@ -52,7 +52,7 @@ function RouteComponent() {
         {employee.employee.firstName} {employee.employee.lastName}
       </PageTitle>
       <AbsencesTable
-        tableData={absencesToTableData(
+        tableData={absencesToTableRows(
           employeeAbsences,
           undefined,
           `/employees${employeeId}`

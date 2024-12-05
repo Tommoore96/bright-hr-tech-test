@@ -5,7 +5,7 @@ import { AbsencesTable } from 'components/absences-table'
 import Page from 'components/page'
 import PageTitle from 'components/page-title'
 import {
-  absencesToTableData,
+  absencesToTableRows,
   TABLE_COLUMNS,
   TableColumnFields
 } from 'utils/absenceTable/absenceTableRows'
@@ -61,7 +61,7 @@ function Index() {
       )}
       <AbsencesTable<TableColumnFields>
         tableColumns={TABLE_COLUMNS}
-        tableData={absencesToTableData(
+        tableData={absencesToTableRows(
           absenceQuery.data,
           conflictsError
             ? undefined

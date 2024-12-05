@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest'
 import {
-  absencesToTableData,
+  absencesToTableRows,
   TABLE_COLUMNS,
   TableColumnFields
 } from './absenceTableRows'
@@ -32,7 +32,7 @@ const mockConflicts: Conflict[] = [{ conflicts: true }, { conflicts: false }]
 
 describe('absencesToTableData', () => {
   test('returns the correct amount of rows', () => {
-    const result = absencesToTableData(mockAbsences)
+    const result = absencesToTableRows(mockAbsences)
     expect(result).toHaveLength(2)
     expect(result[0].data).toHaveLength(TABLE_COLUMNS.length)
   })
@@ -40,7 +40,7 @@ describe('absencesToTableData', () => {
   test('handles conflicts correctly', () => {
     routerRender(
       <>
-        {absencesToTableData(mockAbsences, mockConflicts).map((row) =>
+        {absencesToTableRows(mockAbsences, mockConflicts).map((row) =>
           row.data.map((cell) => cell.element)
         )}
       </>
@@ -52,7 +52,7 @@ describe('absencesToTableData', () => {
   })
 
   test('handles currentPath parameter correctly', () => {
-    const result = absencesToTableData(
+    const result = absencesToTableRows(
       mockAbsences,
       mockConflicts,
       '/employees/1'
@@ -85,7 +85,7 @@ describe('absencesToTableData', () => {
 
   test('formats dates correctly', () => {
     // Start date
-    const result = absencesToTableData(mockAbsences)
+    const result = absencesToTableRows(mockAbsences)
     const startDateCell = result[0].data.find(
       (row) => row.column === TableColumnFields.startDate
     )
