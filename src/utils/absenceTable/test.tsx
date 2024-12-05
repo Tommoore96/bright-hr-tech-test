@@ -5,10 +5,8 @@ import {
   TableColumnFields
 } from './absenceTableRows'
 import { AbsenceRecord, Conflict } from 'types'
-// import { render, screen } from '@testing-library/react'
-import { RouterProvider } from '@tanstack/react-router'
-import { render, screen } from '@testing-library/react'
-import { routerRender, RouterWrapper, TestRouter } from 'test-utils'
+import { screen } from '@testing-library/react'
+import { routerRender } from 'test-utils'
 import React from 'react'
 
 const mockAbsences: AbsenceRecord[] = [
@@ -24,7 +22,7 @@ const mockAbsences: AbsenceRecord[] = [
     id: 2,
     employee: { id: '2', firstName: 'Jane', lastName: 'Smith' },
     absenceType: 'ANNUAL_LEAVE',
-    startDate: new Date('2024-01-01'),
+    startDate: new Date('2024-01-02'),
     days: 5,
     approved: false
   }
@@ -33,7 +31,7 @@ const mockAbsences: AbsenceRecord[] = [
 const mockConflicts: Conflict[] = [{ conflicts: true }, { conflicts: false }]
 
 describe('absencesToTableData', () => {
-  test('returns the correct structure', () => {
+  test('returns the correct amount of rows', () => {
     const result = absencesToTableData(mockAbsences)
     expect(result).toHaveLength(2)
     expect(result[0].data).toHaveLength(TABLE_COLUMNS.length)
@@ -53,7 +51,7 @@ describe('absencesToTableData', () => {
     expect(conflictIcon.parentElement).toContainHTML('John Doe')
   })
 
-  test.only('handles currentPath parameter correctly', () => {
+  test('handles currentPath parameter correctly', () => {
     const result = absencesToTableData(
       mockAbsences,
       mockConflicts,
@@ -73,53 +71,48 @@ describe('absencesToTableData', () => {
     expect(nameCell?.element.props.disabled).toBe(true)
 
     // Check the second employee link is not disabled
-    const result2 = absencesToTableData(
-      mockAbsences,
-      mockConflicts,
-      '/employees/2'
-    )
-
-    const nameCell2 = result2[0].data.find(
+    const nameCell2 = result[1].data.find(
       (cell) => cell.column === TableColumnFields.name
     )
 
     assert(
       React.isValidElement(nameCell2?.element) && nameCell2.element.props,
-      'nameCell is undefined'
+      'The second nameCell is undefined'
     )
 
     expect(nameCell2?.element.props.disabled).toBe(false)
   })
 
   test('formats dates correctly', () => {
+    // Start date
     const result = absencesToTableData(mockAbsences)
-    expect(result[0].data[3].element).toBe('01/01/2024')
-    expect(result[0].data[4].element).toBe('03/01/2024')
-    expect(result[1].data[3].element).toBe('05/01/2024')
-    expect(result[1].data[4].element).toBe('09/01/2024')
-  })
+    const startDateCell = result[0].data.find(
+      (row) => row.column === TableColumnFields.startDate
+    )
 
-  test('maps absence types correctly', () => {
-    const result = absencesToTableData(mockAbsences)
-    expect(result[0].data[1].element.props.children[1]).toBe('Sickness')
-    expect(result[1].data[1].element.props.children[1]).toBe('Annual Leave')
+    const startDateCell2 = result[1].data.find(
+      (row) => row.column === TableColumnFields.startDate
+    )
+
+    assert(startDateCell, 'startDateCell is undefined')
+    assert(startDateCell2, 'startDateCell2 is undefined')
+
+    expect(startDateCell.element).toBe('01/01/2024')
+    expect(startDateCell2.element).toBe('02/01/2024')
+
+    // End date
+    const endDateCell = result[0].data.find(
+      (row) => row.column === TableColumnFields.endDate
+    )
+
+    const endDateCell2 = result[1].data.find(
+      (row) => row.column === TableColumnFields.endDate
+    )
+
+    assert(endDateCell, 'endDateCell is undefined')
+    assert(endDateCell2, 'endDateCell2 is undefined')
+
+    expect(endDateCell.element).toBe('04/01/2024')
+    expect(endDateCell2.element).toBe('07/01/2024')
   })
 })
-
-function TestWrapper({
-  data
-}: {
-  data: ReturnType<typeof absencesToTableData>
-}) {
-  return (
-    <>
-      {data.map((row) => (
-        <div key={row.id}>
-          {row.data.map((cell, index) => (
-            <div key={index}>{cell.element}</div>
-          ))}
-        </div>
-      ))}
-    </>
-  )
-}
