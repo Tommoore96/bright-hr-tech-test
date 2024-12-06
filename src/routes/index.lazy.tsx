@@ -1,14 +1,14 @@
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { getAbsences, getConflicts } from 'api'
-import { AbsencesTable } from 'components/absences-table'
+import { Table } from 'components/table'
 import Page from 'components/page'
 import PageTitle from 'components/page-title'
 import {
-  absencesToTableData,
+  absencesToTableRows,
   TABLE_COLUMNS,
   TableColumnFields
-} from 'utils/absenceTable'
+} from 'utils/absenceTable/absenceTableRows'
 
 export const Route = createLazyFileRoute('/')({
   component: Index
@@ -59,14 +59,15 @@ function Index() {
           There was an error fetching all conflict data.
         </div>
       )}
-      <AbsencesTable<TableColumnFields>
+      <Table<TableColumnFields>
         tableColumns={TABLE_COLUMNS}
-        tableData={absencesToTableData(
+        tableData={absencesToTableRows(
           absenceQuery.data,
           conflictsError
             ? undefined
             : conflicts.map((conflict) => conflict.data)
         )}
+        defaultSort={{ key: TableColumnFields.name, direction: 'asc' }}
       />
     </Page>
   )

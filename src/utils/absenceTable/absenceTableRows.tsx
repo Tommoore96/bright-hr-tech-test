@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { TableColumn, TableData } from 'components/absences-table'
+import { TableColumn, TableData } from 'components/table'
 import { AbsenceRecord, AbsenceType, Conflict } from 'types'
 
 export enum TableColumnFields {
@@ -28,7 +28,7 @@ export const TABLE_COLUMNS: Array<TableColumn<TableColumnFields>> = [
   { headerName: 'End Date', field: TableColumnFields.endDate, sortable: true }
 ]
 
-export function absencesToTableData(
+export function absencesToTableRows(
   absences: AbsenceRecord[],
   conflicts?: Conflict[],
   /**
@@ -42,7 +42,7 @@ export function absencesToTableData(
     endDate.setDate(startDate.getDate() + absence.days)
 
     /**
-     * Doing this again I would turn the data array into an object to ensure better type safety
+     * Doing this again I would consider turning the data array into an object to ensure better type safety
      */
     return {
       id: absence.id,

@@ -18,7 +18,7 @@ import { Route as rootRoute } from './routes/__root'
 
 const IndexLazyImport = createFileRoute('/')()
 const EmployeesEmployeeIdLazyImport = createFileRoute(
-  '/employees/$employeeId',
+  '/employees/$employeeId'
 )()
 
 // Create/Update Routes
@@ -26,15 +26,15 @@ const EmployeesEmployeeIdLazyImport = createFileRoute(
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRoute
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
 const EmployeesEmployeeIdLazyRoute = EmployeesEmployeeIdLazyImport.update({
   id: '/employees/$employeeId',
   path: '/employees/$employeeId',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRoute
 } as any).lazy(() =>
-  import('./routes/employees/$employeeId.lazy').then((d) => d.Route),
+  import('./routes/employees/$employeeId.lazy').then((d) => d.Route)
 )
 
 // Populate the FileRoutesByPath interface
@@ -92,7 +92,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
-  EmployeesEmployeeIdLazyRoute: EmployeesEmployeeIdLazyRoute,
+  EmployeesEmployeeIdLazyRoute: EmployeesEmployeeIdLazyRoute
 }
 
 export const routeTree = rootRoute

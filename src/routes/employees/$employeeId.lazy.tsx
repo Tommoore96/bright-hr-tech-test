@@ -1,12 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { getAbsences } from 'api'
-import { AbsencesTable } from 'components/absences-table'
+import { Table } from 'components/table'
 import Page from 'components/page'
 import PageTitle from 'components/page-title'
-import { absencesToTableData, TABLE_COLUMNS } from 'utils/absenceTable'
+import {
+  absencesToTableRows,
+  TABLE_COLUMNS
+} from 'utils/absenceTable/absenceTableRows'
 
-// Use loaders?
+// In future I might use the Tan Router loader method
 export const Route = createLazyFileRoute('/employees/$employeeId')({
   component: RouteComponent
 })
@@ -48,8 +51,8 @@ function RouteComponent() {
       <PageTitle>
         {employee.employee.firstName} {employee.employee.lastName}
       </PageTitle>
-      <AbsencesTable
-        tableData={absencesToTableData(
+      <Table
+        tableData={absencesToTableRows(
           employeeAbsences,
           undefined,
           `/employees${employeeId}`

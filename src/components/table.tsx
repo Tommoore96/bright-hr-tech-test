@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cn } from 'utils/cn'
+import { cn } from '../utils/cn'
 
 export type TableData<T extends string> = {
   id: string | number
@@ -17,19 +17,21 @@ export type TableColumn<T extends string> = {
   sortable?: boolean
 }
 
-export const AbsencesTable = <T extends string>({
+export const Table = <T extends string>({
   className,
   tableData,
-  tableColumns
+  tableColumns,
+  defaultSort
 }: {
   className?: string
   tableData: TableData<T>
   tableColumns: TableColumn<T>[]
+  defaultSort?: { key: T; direction: 'asc' | 'desc' }
 }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: T
     direction: 'asc' | 'desc'
-  } | null>(null)
+  } | null>(defaultSort || null)
 
   const sortedData = [...tableData].flat().sort((a, b) => {
     if (sortConfig === null) return 0
