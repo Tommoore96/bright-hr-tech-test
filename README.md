@@ -36,7 +36,7 @@ Besides React and Typescript, I've not really used any of these technologies in 
 - Tailwind -It's quick to build with, run, and is easily customisable if needed.
 
 ## Notes
-I initially wrote the table component to handle absences specifically, but I separated it out to make it reusable.  I could've really used a package, but where's the fun in that?
+I initially wrote the table component to handle absences specifically, but I spent more time on it and separated it out to make it reusable & typesafe.  I could've really kept it simple or used a package, but where's the fun in that?
 
 ## What I would add/change:
 - In the `absencesToTableRows` function, the `data` (row) key is an array, which is supposed to map to the columns.  It works well and will give a ts warning if a column is missing, but it doesn't handle the order, there are probably some other ts safety improvements I could've made if the array was an object instead.
