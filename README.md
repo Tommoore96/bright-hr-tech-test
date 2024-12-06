@@ -1,80 +1,43 @@
-![reactjs-vite-tailwindcss-boilerplate](https://user-images.githubusercontent.com/16243531/217138979-b854309c-4742-4275-a705-f9fec5158217.jpg)
+# BrightHR Technical Test
 
-# React Tailwindcss Boilerplate build with Vite
+This is Tom Moore's tech test, please contact me if you've got any questions.
 
-This is a boilerplate build with Vite, React 18, TypeScript, Vitest, Testing Library, TailwindCSS 3, Eslint and Prettier.
+## Start up
 
-## What is inside?
-
-This project uses many tools like:
-
-- [Vite](https://vitejs.dev)
-- [ReactJS](https://reactjs.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [Vitest](https://vitest.dev)
-- [Testing Library](https://testing-library.com)
-- [Tailwindcss](https://tailwindcss.com)
-- [Eslint](https://eslint.org)
-- [Prettier](https://prettier.io)
-
-## Getting Started
-
-### Install
-
-Create the project.
+1. Install Bun: https://bun.sh/docs/installation
+2. Use correct node version
+```bash
+nvm use
+```
+4. Install packages:
 
 ```bash
-pnpm dlx degit joaopaulomoraes/reactjs-vite-tailwindcss-boilerplate my-app
+bun install
 ```
 
-Access the project directory.
+4. Open dev server:
 
 ```bash
-cd my-app
+ bun run dev
 ```
 
-Install dependencies.
-
+## Test
 ```bash
-pnpm install
+bun run test
 ```
 
-Serve with hot reload at <http://localhost:5173>.
+## Tech choices
 
-```bash
-pnpm run dev
-```
+Besides React and Typescript, I've not really used any of these technologies in a professional capacity before, but my usual stack of NextJS and Redux is overkill.
 
-### Lint
+- Vite - As this app is only small, doesn't require SEO or server side logic a lightweight SPA server is the better choice.
+- Tan Router - I've used this once before, but I found it very easy to setup and use.
+- TypeScript - I cannot not use TypeScript anymore. Main reason is it saves time by catching bugs early.
+- Tailwind -It's quick to build with, run, and is easily customisable if needed.
 
-```bash
-pnpm run lint
-```
+## Notes
+I initially wrote the table component to handle absences specifically, but I separated it out to make it reusable.  I could've really used a package, but where's the fun in that?
 
-### Typecheck
-
-```bash
-pnpm run typecheck
-```
-
-### Build
-
-```bash
-pnpm run build
-```
-
-### Test
-
-```bash
-pnpm run test
-```
-
-View and interact with your tests via UI.
-
-```bash
-pnpm run test:ui
-```
-
-## License
-
-This project is licensed under the MIT License.
+## What I would add/change:
+- In the `absencesToTableRows` function, the `data` (row) key is an array, which is supposed to map to the columns.  It works well and will give a ts warning if a column is missing, but it doesn't handle the order, there are probably some other ts safety improvements I could've made if the array was an object instead.
+- TDD: I don't always do TDD, and I didn't here because I haven't used Tan Router before, made & tested tables very often, nor did I have designs, so I chose to feel it out and make improvements as I went along.  If I had designs and was a bit more sure of how the file structure and UI would look and work I probably would have done more TDD.
