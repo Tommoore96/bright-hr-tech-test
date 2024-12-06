@@ -3,10 +3,10 @@ import {
   absencesToTableRows,
   TABLE_COLUMNS,
   TableColumnFields
-} from './absenceTableRows'
+} from '../../src/utils/absenceTable/absenceTableRows'
 import { AbsenceRecord, Conflict } from 'types'
 import { screen } from '@testing-library/react'
-import { routerRender } from '../../../tests/utils'
+import { routerRender } from '../utils'
 import React from 'react'
 
 const mockAbsences: AbsenceRecord[] = [

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cn } from 'utils/cn'
+import { cn } from '../utils/cn'
 
 export type TableData<T extends string> = {
   id: string | number

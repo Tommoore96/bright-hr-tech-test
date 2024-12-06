@@ -3,31 +3,25 @@ import { QueryClient } from '@tanstack/react-query'
 import { Route as IndexRoute } from '../../src/routes/index.lazy'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
-import { getAbsences, getConflicts } from 'api'
-import { customRender, renderWithClient } from '../utils'
+import { customRender } from '../utils'
 
-const IdexComponent = IndexRoute.options.component
+const IndexComponent = IndexRoute.options.component as React.ComponentType
 
-const queryClient = new QueryClient()
-
-const server = setupServer(
-  http.get(
-    'https://front-end-kata.brighthr.workers.dev/api/absences',
-    ({ request, params, cookies }) => {
-      console.log('MSW')
-      return HttpResponse.json([])
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false
     }
-  )
-)
+  }
+})
 
-// Enable request interception.
+// I would set up my own function to carry all this out & reuse it
+const server = setupServer()
+
 beforeAll(() => server.listen())
 
-// Reset handlers so that each test could alter them
-// without affecting other, unrelated tests.
 afterEach(() => server.resetHandlers())
 
-// Don't forget to clean up afterwards.
 afterAll(() => server.close())
 
 describe('Index', () => {
@@ -35,50 +29,126 @@ describe('Index', () => {
     queryClient.clear()
   })
 
-  test.only('displays loading state', async () => {
-    customRender(<IdexComponent />, { client: queryClient })
+  test('displays loading state', async () => {
+    server.use(
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/absences',
+        () => {
+          return HttpResponse.json([])
+        }
+      )
+    )
+    customRender(<IndexComponent />, { client: queryClient })
     expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 
   test('displays error state', async () => {
-    getAbsences.mockRejectedValueOnce(new Error('Error fetching data'))
-    renderWithProviders(<Route />)
-    await waitFor(() =>
-      expect(screen.getByText('Error fetching data')).toBeInTheDocument()
+    server.use(
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/absences',
+        () => {
+          console.log('ERROR')
+          return new HttpResponse(null, { status: 400 })
+        }
+      )
+    )
+    customRender(<IndexComponent />, { client: queryClient })
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    await waitFor(
+      () => expect(screen.getByText('Error fetching data')).toBeInTheDocument(),
+      { timeout: 4000 }
     )
   })
 
   test('displays data correctly', async () => {
-    getAbsences.mockResolvedValueOnce([
-      {
-        id: 1,
-        employee: { id: '1', firstName: 'John', lastName: 'Doe' },
-        absenceType: 'SICKNESS',
-        startDate: new Date('2024-01-01'),
-        days: 3,
-        approved: true
-      }
-    ])
-    getConflicts.mockResolvedValueOnce([{ conflicts: true }])
-    renderWithProviders(<Route />)
-    await waitFor(() =>
-      expect(screen.getByText('John Doe')).toBeInTheDocument()
+    server.use(
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/absences',
+        () => {
+          return HttpResponse.json([
+            {
+              id: 1,
+              employee: { id: '1', firstName: 'John', lastName: 'Doe' },
+              absenceType: 'SICKNESS',
+              startDate: new Date('2024-01-01'),
+              days: 3,
+              approved: true
+            },
+            {
+              id: 2,
+              employee: { id: '2', firstName: 'Jane', lastName: 'Doe' },
+              absenceType: 'SICKNESS',
+              startDate: new Date('2024-01-01'),
+              days: 3,
+              approved: true
+            }
+          ])
+        }
+      ),
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/conflict/1',
+        () => {
+          return HttpResponse.json({ conflicts: true })
+        }
+      ),
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/conflict/2',
+        () => {
+          return HttpResponse.json({ conflicts: false })
+        }
+      )
     )
+    customRender(<IndexComponent />, { client: queryClient })
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument()
+      expect(screen.getByText('Jane Doe')).toBeInTheDocument()
+
+      /**
+       * getBy queries error if 2 elements are found, so I don't need to check for Jane Doe's conflict icon
+       */
+      const conflictIcon = screen.getByText('⚠️')
+      expect(conflictIcon.closest('a')).toContainHTML('John Doe')
+
+      expect(
+        screen.queryByText('There was an error fetching all conflict data.')
+      ).toBeNull()
+    })
   })
 
-  test('handles conflicts error correctly', async () => {
-    getAbsences.mockResolvedValueOnce([
-      {
-        id: 1,
-        employee: { id: '1', firstName: 'John', lastName: 'Doe' },
-        absenceType: 'SICKNESS',
-        startDate: new Date('2024-01-01'),
-        days: 3,
-        approved: true
-      }
-    ])
-    getConflicts.mockRejectedValueOnce(new Error('Error fetching conflicts'))
-    renderWithProviders(<Route />)
+  test('displays error message if not all conflict data is returned', async () => {
+    server.use(
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/absences',
+        () => {
+          return HttpResponse.json([
+            {
+              id: 1,
+              employee: { id: '1', firstName: 'John', lastName: 'Doe' },
+              absenceType: 'SICKNESS',
+              startDate: new Date('2024-01-01'),
+              days: 3,
+              approved: true
+            },
+            {
+              id: 2,
+              employee: { id: '2', firstName: 'Jane', lastName: 'Doe' },
+              absenceType: 'SICKNESS',
+              startDate: new Date('2024-01-01'),
+              days: 3,
+              approved: true
+            }
+          ])
+        }
+      ),
+      http.get(
+        'https://front-end-kata.brighthr.workers.dev/api/conflict/1',
+        () => {
+          return HttpResponse.json({ conflicts: true })
+        }
+      )
+    )
+    customRender(<IndexComponent />, { client: queryClient })
+
     await waitFor(() =>
       expect(
         screen.getByText('There was an error fetching all conflict data.')

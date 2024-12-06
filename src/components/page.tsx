@@ -1,5 +1,5 @@
 import { ReactNode } from '@tanstack/react-router'
-import { cn } from 'utils/cn'
+import { cn } from '../utils/cn'
 
 export default function Page({
   children,
