@@ -1,26 +1,42 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Route } from './index.lazy'
+import { screen, waitFor } from '@testing-library/react'
+import { QueryClient } from '@tanstack/react-query'
+import { Route as IndexRoute } from '../../src/routes/index.lazy'
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
 import { getAbsences, getConflicts } from 'api'
-import { BrowserRouter } from 'react-router-dom'
-import { vi } from 'vitest'
+import { customRender, renderWithClient } from '../utils'
 
-// Mock the API calls
-vi.mock('api', () => ({
-  getAbsences: vi.fn(),
-  getConflicts: vi.fn()
-}))
+const IdexComponent = IndexRoute.options.component
 
 const queryClient = new QueryClient()
+
+const server = setupServer(
+  http.get(
+    'https://front-end-kata.brighthr.workers.dev/api/absences',
+    ({ request, params, cookies }) => {
+      console.log('MSW')
+      return HttpResponse.json([])
+    }
+  )
+)
+
+// Enable request interception.
+beforeAll(() => server.listen())
+
+// Reset handlers so that each test could alter them
+// without affecting other, unrelated tests.
+afterEach(() => server.resetHandlers())
+
+// Don't forget to clean up afterwards.
+afterAll(() => server.close())
 
 describe('Index', () => {
   beforeEach(() => {
     queryClient.clear()
   })
 
-  test('displays loading state', async () => {
-    getAbsences.mockResolvedValueOnce([])
-    renderWithProviders(<Route />)
+  test.only('displays loading state', async () => {
+    customRender(<IdexComponent />, { client: queryClient })
     expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 

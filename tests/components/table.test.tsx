@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect } from 'vitest'
-import { Table, TableData, TableColumn } from './index'
+import { Table, TableData, TableColumn } from '../../src/components/table'
 
 type TestColumns = 'name' | 'date' | 'status'
 

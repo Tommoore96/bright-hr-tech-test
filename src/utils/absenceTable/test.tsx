@@ -6,7 +6,7 @@ import {
 } from './absenceTableRows'
 import { AbsenceRecord, Conflict } from 'types'
 import { screen } from '@testing-library/react'
-import { routerRender } from 'test-utils'
+import { routerRender } from '../../../tests/utils'
 import React from 'react'
 
 const mockAbsences: AbsenceRecord[] = [
