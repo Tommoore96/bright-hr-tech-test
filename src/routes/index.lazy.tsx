@@ -1,7 +1,7 @@
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { getAbsences, getConflicts } from 'api'
-import { AbsencesTable } from 'components/absences-table'
+import { Table } from 'components/table'
 import Page from 'components/page'
 import PageTitle from 'components/page-title'
 import {
@@ -59,7 +59,7 @@ function Index() {
           There was an error fetching all conflict data.
         </div>
       )}
-      <AbsencesTable<TableColumnFields>
+      <Table<TableColumnFields>
         tableColumns={TABLE_COLUMNS}
         tableData={absencesToTableRows(
           absenceQuery.data,

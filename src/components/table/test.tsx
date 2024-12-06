@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect } from 'vitest'
-import { AbsencesTable, TableData, TableColumn } from './index'
+import { Table, TableData, TableColumn } from './index'
 
 type TestColumns = 'name' | 'date' | 'status'
 
@@ -39,7 +39,7 @@ const tableData: TableData<TestColumns> = [
 
 describe('AbsencesTable', () => {
   test('renders correctly', () => {
-    render(<AbsencesTable tableData={tableData} tableColumns={tableColumns} />)
+    render(<Table tableData={tableData} tableColumns={tableColumns} />)
 
     expect(screen.getByText('Name')).toBeInTheDocument()
     expect(screen.getByText('Date')).toBeInTheDocument()
@@ -50,7 +50,7 @@ describe('AbsencesTable', () => {
 
   test('sorts data correctly when passed a default', () => {
     const { unmount } = render(
-      <AbsencesTable
+      <Table
         tableData={tableData}
         tableColumns={tableColumns}
         defaultSort={{ key: 'name', direction: 'asc' }}
@@ -65,7 +65,7 @@ describe('AbsencesTable', () => {
     unmount()
 
     render(
-      <AbsencesTable
+      <Table
         tableData={tableData}
         tableColumns={tableColumns}
         defaultSort={{ key: 'name', direction: 'desc' }}
@@ -80,7 +80,7 @@ describe('AbsencesTable', () => {
 
   test('sorts data correctly when column header is clicked', () => {
     render(
-      <AbsencesTable
+      <Table
         tableData={tableData}
         tableColumns={tableColumns}
         defaultSort={{ key: 'name', direction: 'asc' }}
@@ -103,7 +103,7 @@ describe('AbsencesTable', () => {
   })
 
   test('non sortable columns do not change table order when clicked', () => {
-    render(<AbsencesTable tableData={tableData} tableColumns={tableColumns} />)
+    render(<Table tableData={tableData} tableColumns={tableColumns} />)
 
     const rows = screen.getAllByRole('row')
 
@@ -119,7 +119,7 @@ describe('AbsencesTable', () => {
   })
 
   test('renders column headers correctly', () => {
-    render(<AbsencesTable tableData={tableData} tableColumns={tableColumns} />)
+    render(<Table tableData={tableData} tableColumns={tableColumns} />)
 
     tableColumns.forEach((column) => {
       expect(screen.getByText(column.headerName)).toBeInTheDocument()
@@ -132,7 +132,7 @@ describe('AbsencesTable', () => {
    */
   test('renders table rows and cells correctly', () => {
     const { asFragment } = render(
-      <AbsencesTable tableData={tableData} tableColumns={tableColumns} />
+      <Table tableData={tableData} tableColumns={tableColumns} />
     )
     expect(asFragment).toMatchSnapshot()
   })

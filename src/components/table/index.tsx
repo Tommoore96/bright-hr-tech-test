@@ -17,7 +17,7 @@ export type TableColumn<T extends string> = {
   sortable?: boolean
 }
 
-export const AbsencesTable = <T extends string>({
+export const Table = <T extends string>({
   className,
   tableData,
   tableColumns,

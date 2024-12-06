@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { TableColumn, TableData } from 'components/absences-table'
+import { TableColumn, TableData } from 'components/table'
 import { AbsenceRecord, AbsenceType, Conflict } from 'types'
 
 export enum TableColumnFields {
