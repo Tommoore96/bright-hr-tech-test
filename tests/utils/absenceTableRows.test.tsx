@@ -1,10 +1,9 @@
 import { describe, expect } from 'vitest'
 import {
   absencesToTableRows,
-  TABLE_COLUMNS,
-  TableColumnFields
+  TABLE_COLUMNS
 } from '../../src/utils/absenceTable/absenceTableRows'
-import { AbsenceRecord, Conflict } from 'types'
+import { AbsenceRecord, Conflict, TableColumnFields } from 'types'
 import { screen } from '@testing-library/react'
 import { customRender } from '../utils'
 import React from 'react'
