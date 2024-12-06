@@ -6,9 +6,9 @@ import Page from 'components/page'
 import PageTitle from 'components/page-title'
 import {
   absencesToTableRows,
-  TABLE_COLUMNS,
-  TableColumnFields
+  TABLE_COLUMNS
 } from 'utils/absenceTable/absenceTableRows'
+import { TableColumnFields } from 'types'
 
 export const Route = createLazyFileRoute('/')({
   component: Index

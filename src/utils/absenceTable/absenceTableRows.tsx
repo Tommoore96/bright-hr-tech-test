@@ -1,14 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { TableColumn, TableData } from 'components/table'
-import { AbsenceRecord, AbsenceType, Conflict } from 'types'
-
-export enum TableColumnFields {
-  name = 'name',
-  type = 'type',
-  approved = 'approved',
-  startDate = 'startDate',
-  endDate = 'endDate'
-}
+import { AbsenceRecord, AbsenceType, Conflict, TableColumnFields } from 'types'
 
 const absenceTypeMap = {
   SICKNESS: 'Sickness',
