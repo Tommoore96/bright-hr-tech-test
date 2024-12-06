@@ -6,7 +6,7 @@ import {
 } from '../../src/utils/absenceTable/absenceTableRows'
 import { AbsenceRecord, Conflict } from 'types'
 import { screen } from '@testing-library/react'
-import { routerRender } from '../utils'
+import { customRender } from '../utils'
 import React from 'react'
 
 const mockAbsences: AbsenceRecord[] = [
@@ -38,7 +38,7 @@ describe('absencesToTableData', () => {
   })
 
   test('handles conflicts correctly', () => {
-    routerRender(
+    customRender(
       <>
         {absencesToTableRows(mockAbsences, mockConflicts).map((row) =>
           row.data.map((cell) => cell.element)
