@@ -41,3 +41,4 @@ I initially wrote the table component to handle absences specifically, but I spe
 ## What I would add/change:
 - In the `absencesToTableRows` function, the `data` (row) key is an array, which is supposed to map to the columns.  It works well and will give a ts warning if a column is missing, but it doesn't handle the order, there are probably some other ts safety improvements I could've made if the array was an object instead.
 - TDD: I don't always do TDD, and I didn't here because I haven't used Tan Router before, made & tested tables very often, nor did I have designs, so I chose to feel it out and make improvements as I went along.  If I had designs and was a bit more sure of how the file structure and UI would look and work I probably would have done more TDD.
+- Test the `/employee/{id}` page, I didn't feel I needed to here because it would've been similar but less difficult tests as the index page.
